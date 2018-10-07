@@ -6,24 +6,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.android.mapproject.R
 import com.android.mapproject.databinding.FragmentPlaceDetailBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
 import com.android.mapproject.presentation.placedetail.PlaceDetailFragmentArgs.fromBundle
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MarkerOptions
 import javax.inject.Inject
-
 
 /**
  * Created by JasonYang.
  */
 class PlaceDetailFragment :
         Fragment(),
-        GoogleMap.OnMarkerClickListener,
         OnMapReadyCallback {
 
     @Inject
@@ -60,10 +59,30 @@ class PlaceDetailFragment :
     }
 
     override fun onMapReady(map: GoogleMap?) {
-        map?.setOnMarkerClickListener(this)
+        viewDataBinding.viewModel?.run {
+            val place = place.get()
+            coordinate.observe(this@PlaceDetailFragment, Observer { coordinate ->
+                map?.let {
+                    val markerOptions = MarkerOptions()
+                            .position(coordinate)
+                            .title(place?.name)
+                    val marker = it.addMarker(markerOptions)
+                    marker.tag = 0
+
+                    val move = moveCamera(coordinate)
+                    map.moveCamera(move)
+                    val zoom = CameraUpdateFactory.zoomTo(17f)
+                    map.animateCamera(zoom)
+                }
+            })
+        }
     }
 
-    override fun onMarkerClick(marker: Marker?): Boolean {
-        return false
+    private fun moveCamera(coordinate: LatLng): CameraUpdate {
+        val builder = LatLngBounds.Builder()
+        builder.include(coordinate)
+        val bounds = builder.build()
+        val padding = 10
+        return CameraUpdateFactory.newLatLngBounds(bounds, padding)
     }
 }
