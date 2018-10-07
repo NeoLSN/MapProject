@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MapProject</string>
+    <string name="parking_place_name">停車場名稱</string>
+    <string name="parking_place_area">區域</string>
+    <string name="parking_place_service_time">營業時間</string>
+    <string name="parking_place_address">地址</string>
 </resources>
