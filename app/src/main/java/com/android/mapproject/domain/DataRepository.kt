@@ -1,6 +1,5 @@
 package com.android.mapproject.domain
 
-import com.android.mapproject.data.source.remote.ParkingDataRecord
 import io.reactivex.Completable
 import io.reactivex.Flowable
 
@@ -9,9 +8,9 @@ import io.reactivex.Flowable
  */
 interface DataRepository {
 
-    fun allPlaces(): Flowable<List<ParkingDataRecord>>
+    fun allPlaces(): Flowable<List<ParkingPlace>>
 
-    fun getPlace(id: String): Flowable<ParkingDataRecord>
+    fun getPlace(id: String): Flowable<ParkingPlace>
 
     fun refreshPlaces(): Completable
 }

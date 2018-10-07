@@ -1,4 +1,4 @@
-package com.android.mapproject.data.source.remote
+package com.android.mapproject.domain
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 /**
  * Created by JasonYang.
  */
-class ParkingDataRecord {
+class ParkingPlace {
 
     @SerializedName("ID")
     @Expose

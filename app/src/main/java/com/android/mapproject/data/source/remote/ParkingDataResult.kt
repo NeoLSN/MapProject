@@ -1,5 +1,6 @@
 package com.android.mapproject.data.source.remote
 
+import com.android.mapproject.domain.ParkingPlace
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
@@ -26,5 +27,5 @@ class ParkingDataResult {
 
     @SerializedName("records")
     @Expose
-    var records: List<ParkingDataRecord>? = null
+    var records: List<ParkingPlace>? = null
 }

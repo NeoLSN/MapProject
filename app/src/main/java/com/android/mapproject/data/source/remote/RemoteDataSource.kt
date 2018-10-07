@@ -1,5 +1,6 @@
 package com.android.mapproject.data.source.remote
 
+import com.android.mapproject.domain.ParkingPlace
 import io.reactivex.Single
 
 /**
@@ -7,7 +8,7 @@ import io.reactivex.Single
  */
 class RemoteDataSource(private val service: ParkingPlaceService) {
 
-    fun allPlaces(): Single<List<ParkingDataRecord>> {
+    fun allPlaces(): Single<List<ParkingPlace>> {
         return service.getParkingPlaces()
                 .map { it.result?.records ?: ArrayList() }
     }

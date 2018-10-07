@@ -1,6 +1,6 @@
 package com.android.mapproject.data.source.local
 
-import com.android.mapproject.data.source.remote.ParkingDataRecord
+import com.android.mapproject.domain.ParkingPlace
 import javax.inject.Inject
 
 /**
@@ -8,8 +8,8 @@ import javax.inject.Inject
  */
 class DataMapper @Inject constructor() {
 
-    fun fromDb(from: ParkingPlaceEntity): ParkingDataRecord {
-        val place = ParkingDataRecord()
+    fun fromDb(from: ParkingPlaceEntity): ParkingPlace {
+        val place = ParkingPlace()
 
         place.id = from.id
         place.area = from.area
@@ -29,7 +29,7 @@ class DataMapper @Inject constructor() {
         return place
     }
 
-    fun toDb(from: ParkingDataRecord): ParkingPlaceEntity {
+    fun toDb(from: ParkingPlace): ParkingPlaceEntity {
         val place = ParkingPlaceEntity(from.id!!)
 
         place.area = from.area

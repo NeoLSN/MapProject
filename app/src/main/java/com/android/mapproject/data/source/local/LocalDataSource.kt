@@ -1,6 +1,6 @@
 package com.android.mapproject.data.source.local
 
-import com.android.mapproject.data.source.remote.ParkingDataRecord
+import com.android.mapproject.domain.ParkingPlace
 import io.reactivex.Completable
 import io.reactivex.Flowable
 
@@ -12,17 +12,17 @@ class LocalDataSource(
         private val mapper: DataMapper
 ) {
 
-    fun insert(place: ParkingDataRecord): Completable =
+    fun insert(place: ParkingPlace): Completable =
             Completable.fromAction { placesDao.insert(mapper.toDb(place)) }
 
-    fun insertAll(places: List<ParkingDataRecord>): Completable =
+    fun insertAll(places: List<ParkingPlace>): Completable =
             Completable.fromAction {
                 placesDao.insertAll(places.map { mapper.toDb(it) })
             }
 
-    fun placeById(id: String): Flowable<ParkingDataRecord> =
+    fun placeById(id: String): Flowable<ParkingPlace> =
             placesDao.placeById(id).map { mapper.fromDb(it) }
 
-    fun allPlaces(): Flowable<List<ParkingDataRecord>> =
+    fun allPlaces(): Flowable<List<ParkingPlace>> =
             placesDao.allPlaces().map { it.map { p -> mapper.fromDb(p) } }
 }
