@@ -14,6 +14,8 @@ class DataRepositoryImpl(
 
     override fun allPlaces() = local.allPlaces()
 
+    override fun filter(term: String) = local.fliter(term)
+
     override fun getPlace(id: String) = local.placeById(id)
 
     override fun refreshPlaces() =

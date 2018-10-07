@@ -25,4 +25,7 @@ class LocalDataSource(
 
     fun allPlaces(): Flowable<List<ParkingPlace>> =
             placesDao.allPlaces().map { it.map { p -> mapper.fromDb(p) } }
+
+    fun fliter(term: String): Flowable<List<ParkingPlace>> =
+            placesDao.filter("%$term%").map { it.map { p -> mapper.fromDb(p) } }
 }

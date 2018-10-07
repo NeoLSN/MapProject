@@ -1,7 +1,9 @@
 package com.android.mapproject.presentation.places
 
 import android.util.Log
+import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
+import com.android.mapproject.domain.FilterParkingPlacesUseCase
 import com.android.mapproject.domain.GetParkingPlacesUseCase
 import com.android.mapproject.domain.ParkingPlace
 import com.android.mapproject.domain.RefreshParkingPlacesUseCase
@@ -10,13 +12,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by JasonYang.
  */
 class ParkingPlacesViewModel(
         private val refresh: RefreshParkingPlacesUseCase,
-        private val getPlaces: GetParkingPlacesUseCase
+        private val getPlaces: GetParkingPlacesUseCase,
+        private val filter: FilterParkingPlacesUseCase
 ) : BaseViewModel() {
 
     val places = MutableLiveData<List<ParkingPlace>>()
@@ -24,6 +29,28 @@ class ParkingPlacesViewModel(
         val bool = MutableLiveData<Boolean>()
         bool.postValue(false)
         bool
+    }
+    val searchTerm = ObservableField<String>()
+
+    private val subject = PublishSubject.create<String>()
+
+    init {
+        val worker = subject
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .doOnNext { searchTerm.set(it) }
+                .doOnNext { isRefreshing.postValue(true) }
+                .switchMap { str ->
+                    if (str.isBlank()) getPlaces.allPlaces().toObservable()
+                    else filter.filter(str).toObservable()
+                }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext { isRefreshing.postValue(false) }
+                .subscribeBy(
+                        onNext = { places.postValue(it) },
+                        onError = { e -> Log.w("ParkingPlacesViewModel", "Filter places error: $e") }
+                )
+        disposables += worker
     }
 
     private var isLoaded = false
@@ -36,11 +63,11 @@ class ParkingPlacesViewModel(
                 .firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doAfterTerminate { isRefreshing.postValue(false) }
-                .subscribeBy (
+                .subscribeBy(
                         onSuccess = {
                             isLoaded = true
                             if (it.isEmpty()) refreshParkingPlaces()
-                            places.value = it
+                            places.postValue(it)
                         },
                         onError = { e -> Log.w("ParkingPlacesViewModel", "Get places error: $e") }
                 )
@@ -57,5 +84,14 @@ class ParkingPlacesViewModel(
                         onComplete = { allPlaces(true) },
                         onError = { e -> Log.w("ParkingPlacesViewModel", "Refresh error: $e") }
                 )
+    }
+
+    fun filterPlaces(term: String) {
+        subject.onNext(term)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        subject.onComplete()
     }
 }

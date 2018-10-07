@@ -38,8 +38,8 @@ class ParkingPlacesAdapter : RecyclerView.Adapter<BaseViewHolder>() {
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         val place = items[position]
         holder.bindVariable(BR.place, place)
-        onItemClick?.let {listener ->
-            holder.itemView.setOnClickListener{
+        onItemClick?.let { listener ->
+            holder.itemView.setOnClickListener {
                 listener(place)
             }
         }

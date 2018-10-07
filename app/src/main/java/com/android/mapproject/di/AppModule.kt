@@ -1,6 +1,7 @@
 package com.android.mapproject.di
 
 import android.app.Application
+import com.android.mapproject.domain.FilterParkingPlacesUseCase
 import com.android.mapproject.domain.GetParkingPlaceUseCase
 import com.android.mapproject.domain.GetParkingPlacesUseCase
 import com.android.mapproject.domain.RefreshParkingPlacesUseCase
@@ -42,8 +43,9 @@ abstract class AppModule {
         @Provides
         fun provideParkingPlacesViewModelFactory(
                 refresh: RefreshParkingPlacesUseCase,
-                getPlaces: GetParkingPlacesUseCase
-        ) = ParkingPlacesViewModelFactory(refresh, getPlaces)
+                getPlaces: GetParkingPlacesUseCase,
+                filter: FilterParkingPlacesUseCase
+        ) = ParkingPlacesViewModelFactory(refresh, getPlaces, filter)
 
         @Singleton
         @JvmStatic

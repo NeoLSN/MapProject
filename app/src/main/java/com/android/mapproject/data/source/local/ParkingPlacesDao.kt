@@ -23,4 +23,7 @@ interface ParkingPlacesDao {
 
     @Query("SELECT * FROM parking_places ORDER BY id ASC")
     fun allPlaces(): Flowable<List<ParkingPlaceEntity>>
+
+    @Query("SELECT * FROM parking_places WHERE name LIKE :term OR area LIKE :term ORDER BY id ASC")
+    fun filter(term: String): Flowable<List<ParkingPlaceEntity>>
 }

@@ -2,15 +2,15 @@ package com.android.mapproject.presentation.places
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.mapproject.R
 import com.android.mapproject.databinding.FragmentParkingPlacesBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
 import com.android.mapproject.domain.ParkingPlace
@@ -51,6 +51,8 @@ class ParkingPlacesFragment : Fragment() {
         setupListView()
 
         setupSwipeRefreshLayout()
+
+        setHasOptionsMenu(true)
     }
 
     private fun setupListView() {
@@ -82,6 +84,42 @@ class ParkingPlacesFragment : Fragment() {
             viewDataBinding.refreshLayout.setScrollUpChild(viewDataBinding.placeList)
             viewDataBinding.refreshLayout.setOnRefreshListener {
                 it.refreshParkingPlaces()
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.search_menu, menu)
+
+        val searchView = menu?.findItem(R.id.action_search)
+                ?.actionView as SearchView
+
+        searchView.let { it ->
+
+            it.setOnCloseListener {
+                viewDataBinding.viewModel?.allPlaces(true)
+                viewDataBinding.viewModel?.searchTerm?.set("")
+                false
+            }
+
+            it.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    viewDataBinding.viewModel?.filterPlaces(query)
+                    return false
+                }
+
+                override fun onQueryTextChange(query: String): Boolean {
+                    viewDataBinding.viewModel?.filterPlaces(query)
+                    return false
+                }
+            })
+        }
+
+        viewDataBinding.viewModel?.let {
+            val term = it.searchTerm.get()
+            if (!term.isNullOrBlank()) {
+                searchView.isIconified = false
+                searchView.setQuery(term, true)
             }
         }
     }
