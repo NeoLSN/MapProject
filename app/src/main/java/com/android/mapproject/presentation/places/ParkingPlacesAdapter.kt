@@ -36,6 +36,12 @@ class ParkingPlacesAdapter : RecyclerView.Adapter<BaseViewHolder>() {
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
-        holder.bindVariable(BR.place, items[position])
+        val place = items[position]
+        holder.bindVariable(BR.place, place)
+        onItemClick?.let {listener ->
+            holder.itemView.setOnClickListener{
+                listener(place)
+            }
+        }
     }
 }

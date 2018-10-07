@@ -23,13 +23,17 @@ class ParkingPlacesViewModel(
     val places = MutableLiveData<List<ParkingPlace>>()
     val isRefreshing = ObservableBoolean(false)
 
-    fun allPlaces() {
+    private var isLoaded = false
+
+    fun allPlaces(forceReload: Boolean = false) {
+        if (isLoaded && !forceReload) return
         disposables += getPlaces.allPlaces()
                 .subscribeOn(Schedulers.io())
                 .firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy (
                         onSuccess = {
+                            isLoaded = true
                             if (it.isEmpty()) refreshParkingPlaces()
                             places.value = it
                         },
@@ -45,7 +49,7 @@ class ParkingPlacesViewModel(
                 .observeOn(AndroidSchedulers.mainThread())
                 .doAfterTerminate { isRefreshing.set(false) }
                 .subscribeBy(
-                        onComplete = { allPlaces() },
+                        onComplete = { allPlaces(true) },
                         onError = { e -> Log.w("ParkingPlacesViewModel", "Refresh error: $e") }
                 )
     }

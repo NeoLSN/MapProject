@@ -8,16 +8,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.mapproject.databinding.FragmentParkingPlacesBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
+import com.android.mapproject.domain.ParkingPlace
+import com.android.mapproject.presentation.places.ParkingPlacesFragmentDirections.actionPlaceListToPlaceDetail
 import javax.inject.Inject
 
 /**
  * Created by JasonYang.
  */
-class ParkingPlacesFragment: Fragment() {
+class ParkingPlacesFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ParkingPlacesViewModelFactory
@@ -56,9 +59,15 @@ class ParkingPlacesFragment: Fragment() {
             listAdapter = ParkingPlacesAdapter()
             viewDataBinding.placeList.adapter = listAdapter
 
+            listAdapter.onItemClick = { place ->
+                if (place is ParkingPlace) {
+                    val navDirections = actionPlaceListToPlaceDetail(place.id!!)
+                    view?.run { Navigation.findNavController(this).navigate(navDirections) }
+                }
+            }
+
             it.places.observe(this, Observer { list ->
                 listAdapter.items = list
-                listAdapter.notifyDataSetChanged()
             })
         }
     }
