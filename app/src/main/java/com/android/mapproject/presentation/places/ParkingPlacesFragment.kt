@@ -96,9 +96,14 @@ class ParkingPlacesFragment : Fragment() {
 
         searchView.let { it ->
 
+            it.setOnSearchClickListener {
+                viewDataBinding.refreshLayout.isEnabled = false
+            }
+
             it.setOnCloseListener {
                 viewDataBinding.viewModel?.allPlaces(true)
                 viewDataBinding.viewModel?.searchTerm?.set("")
+                viewDataBinding.refreshLayout.isEnabled = true
                 false
             }
 
