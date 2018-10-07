@@ -49,6 +49,8 @@ class ParkingPlacesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupListView()
+
+        setupSwipeRefreshLayout()
     }
 
     private fun setupListView() {
@@ -69,6 +71,18 @@ class ParkingPlacesFragment : Fragment() {
             it.places.observe(this, Observer { list ->
                 listAdapter.items = list
             })
+        }
+    }
+
+    private fun setupSwipeRefreshLayout() {
+        viewDataBinding.viewModel?.let {
+            it.isRefreshing.observe(this, Observer { isRefreshing ->
+                viewDataBinding.refreshLayout.isRefreshing = isRefreshing
+            })
+            viewDataBinding.refreshLayout.setScrollUpChild(viewDataBinding.placeList)
+            viewDataBinding.refreshLayout.setOnRefreshListener {
+                it.refreshParkingPlaces()
+            }
         }
     }
 

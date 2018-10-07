@@ -1,7 +1,6 @@
 package com.android.mapproject.presentation.places
 
 import android.util.Log
-import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.MutableLiveData
 import com.android.mapproject.domain.GetParkingPlacesUseCase
 import com.android.mapproject.domain.ParkingPlace
@@ -21,16 +20,22 @@ class ParkingPlacesViewModel(
 ) : BaseViewModel() {
 
     val places = MutableLiveData<List<ParkingPlace>>()
-    val isRefreshing = ObservableBoolean(false)
+    val isRefreshing by lazy {
+        val bool = MutableLiveData<Boolean>()
+        bool.postValue(false)
+        bool
+    }
 
     private var isLoaded = false
 
     fun allPlaces(forceReload: Boolean = false) {
         if (isLoaded && !forceReload) return
         disposables += getPlaces.allPlaces()
+                .doOnSubscribe { isRefreshing.postValue(true) }
                 .subscribeOn(Schedulers.io())
                 .firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
+                .doAfterTerminate { isRefreshing.postValue(false) }
                 .subscribeBy (
                         onSuccess = {
                             isLoaded = true
@@ -42,12 +47,12 @@ class ParkingPlacesViewModel(
     }
 
     fun refreshParkingPlaces() {
-        if (isRefreshing.get()) return
+        if (isRefreshing.value == true) return
         disposables += refresh.refreshParkingPlaces()
                 .subscribeOn(Schedulers.io())
-                .doOnSubscribe { isRefreshing.set(true) }
+                .doOnSubscribe { isRefreshing.postValue(true) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .doAfterTerminate { isRefreshing.set(false) }
+                .doAfterTerminate { isRefreshing.postValue(false) }
                 .subscribeBy(
                         onComplete = { allPlaces(true) },
                         onError = { e -> Log.w("ParkingPlacesViewModel", "Refresh error: $e") }
