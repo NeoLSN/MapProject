@@ -10,6 +10,7 @@ import com.android.mapproject.BR
 import com.android.mapproject.R
 import com.android.mapproject.domain.ParkingPlace
 import com.android.mapproject.util.recyclerview.viewholder.BaseViewHolder
+import java.util.*
 
 /**
  * Created by JasonYang.
@@ -18,7 +19,7 @@ class ParkingPlacesAdapter : RecyclerView.Adapter<BaseViewHolder>() {
 
     var onItemClick: ((obj: Any) -> Unit)? = null
 
-    var items: List<ParkingPlace> = ArrayList()
+    var items: List<ParkingPlace> = Collections.emptyList()
         set(newItems) {
             val cb = AdapterDiffCallback(field, newItems)
             val result = DiffUtil.calculateDiff(cb, false)

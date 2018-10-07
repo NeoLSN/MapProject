@@ -15,6 +15,7 @@ import com.android.mapproject.databinding.FragmentParkingPlacesBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
 import com.android.mapproject.domain.ParkingPlace
 import com.android.mapproject.presentation.places.ParkingPlacesFragmentDirections.actionPlaceListToPlaceDetail
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -101,8 +102,8 @@ class ParkingPlacesFragment : Fragment() {
             }
 
             it.setOnCloseListener {
-                viewDataBinding.viewModel?.allPlaces(true)
-                viewDataBinding.viewModel?.searchTerm?.set("")
+                listAdapter.items = Collections.emptyList()
+                viewDataBinding.viewModel?.filterPlaces("")
                 viewDataBinding.refreshLayout.isEnabled = true
                 false
             }
