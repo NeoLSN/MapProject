@@ -3,8 +3,6 @@ package com.android.mapproject.data
 import com.android.mapproject.data.source.local.LocalDataSource
 import com.android.mapproject.data.source.remote.RemoteDataSource
 import com.android.mapproject.domain.DataRepository
-import io.reactivex.Completable
-import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by JasonYang.
@@ -18,9 +16,7 @@ class DataRepositoryImpl(
 
     override fun getPlace(id: String) = local.placeById(id)
 
-    override fun refreshPlaces() = Completable.fromSingle(
+    override fun refreshPlaces() =
             remote.allPlaces()
-                    .subscribeOn(Schedulers.computation())
-                    .doOnSuccess { places -> local.insertAll(places) }
-    )
+                    .flatMapCompletable { places -> local.insertAll(places) }
 }

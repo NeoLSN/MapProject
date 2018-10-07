@@ -1,6 +1,6 @@
 package com.android.mapproject.data.source.remote
 
-import io.reactivex.Single
+import io.reactivex.Flowable
 import retrofit2.http.GET
 
 /**
@@ -13,5 +13,5 @@ interface ParkingPlaceService {
     }
 
     @GET("/api/v1/rest/datastore/382000000A-000225-002")
-    fun getParkingPlaces(): Single<ParkingDataResponse>
+    fun getParkingPlaces(): Flowable<ParkingDataResponse>
 }

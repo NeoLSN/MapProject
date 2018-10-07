@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/mobile_navigation">
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/mobile_navigation"
+            app:startDestination="@id/parkingPlacesFragment">
 
+    <fragment
+        android:id="@+id/parkingPlacesFragment"
+        android:name="com.android.mapproject.presentation.places.ParkingPlacesFragment"
+        android:label="ParkingPlacesFragment">
+        <action
+            android:id="@+id/action_parkingPlacesFragment_to_placeDetailFragment"
+            app:destination="@id/placeDetailFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/placeDetailFragment"
+        android:name="com.android.mapproject.presentation.placedetail.PlaceDetailFragment"
+        android:label="PlaceDetailFragment"/>
 </navigation>
