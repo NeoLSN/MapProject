@@ -3,10 +3,10 @@ package com.android.mapproject.presentation.places
 import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
-import com.android.mapproject.domain.FilterParkingPlacesUseCase
-import com.android.mapproject.domain.GetParkingPlacesUseCase
-import com.android.mapproject.domain.ParkingPlace
-import com.android.mapproject.domain.RefreshParkingPlacesUseCase
+import com.android.mapproject.domain.model.ParkingPlace
+import com.android.mapproject.domain.usecase.FilterParkingPlacesUseCase
+import com.android.mapproject.domain.usecase.GetParkingPlacesUseCase
+import com.android.mapproject.domain.usecase.RefreshParkingPlacesUseCase
 import com.android.mapproject.presentation.BaseViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign

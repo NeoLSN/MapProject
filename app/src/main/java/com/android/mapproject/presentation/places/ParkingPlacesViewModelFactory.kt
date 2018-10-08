@@ -2,9 +2,9 @@ package com.android.mapproject.presentation.places
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.android.mapproject.domain.FilterParkingPlacesUseCase
-import com.android.mapproject.domain.GetParkingPlacesUseCase
-import com.android.mapproject.domain.RefreshParkingPlacesUseCase
+import com.android.mapproject.domain.usecase.FilterParkingPlacesUseCase
+import com.android.mapproject.domain.usecase.GetParkingPlacesUseCase
+import com.android.mapproject.domain.usecase.RefreshParkingPlacesUseCase
 
 /**
  * Created by JasonYang.

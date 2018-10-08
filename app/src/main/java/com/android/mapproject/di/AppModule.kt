@@ -1,7 +1,7 @@
 package com.android.mapproject.di
 
 import android.app.Application
-import com.android.mapproject.domain.*
+import com.android.mapproject.domain.usecase.*
 import com.android.mapproject.presentation.MainActivity
 import com.android.mapproject.presentation.placedetail.PlaceDetailFragment
 import com.android.mapproject.presentation.placedetail.PlaceDetailViewModelFactory

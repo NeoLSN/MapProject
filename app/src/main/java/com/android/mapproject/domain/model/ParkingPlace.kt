@@ -1,4 +1,4 @@
-package com.android.mapproject.domain
+package com.android.mapproject.domain.model
 
 import android.os.Parcel
 import android.os.Parcelable

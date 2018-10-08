@@ -1,6 +1,6 @@
 package com.android.mapproject.data.source.remote
 
-import com.android.mapproject.domain.ParkingPlace
+import com.android.mapproject.domain.model.ParkingPlace
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 

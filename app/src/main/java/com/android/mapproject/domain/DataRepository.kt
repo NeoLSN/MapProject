@@ -1,5 +1,6 @@
 package com.android.mapproject.domain
 
+import com.android.mapproject.domain.model.ParkingPlace
 import io.reactivex.Completable
 import io.reactivex.Flowable
 

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.mapproject.R
 import com.android.mapproject.databinding.FragmentParkingPlacesBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
-import com.android.mapproject.domain.ParkingPlace
+import com.android.mapproject.domain.model.ParkingPlace
 import com.android.mapproject.presentation.places.ParkingPlacesFragmentDirections.actionPlaceListToPlaceDetail
 import java.util.*
 import javax.inject.Inject

@@ -1,4 +1,4 @@
-package com.android.mapproject.domain
+package com.android.mapproject.domain.usecase
 
 import com.google.maps.DirectionsApi
 import com.google.maps.GeoApiContext

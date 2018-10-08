@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.android.mapproject.BR
 import com.android.mapproject.R
-import com.android.mapproject.domain.ParkingPlace
+import com.android.mapproject.domain.model.ParkingPlace
 import com.android.mapproject.util.recyclerview.viewholder.BaseViewHolder
 import java.util.*
 

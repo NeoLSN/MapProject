@@ -1,5 +1,6 @@
-package com.android.mapproject.domain
+package com.android.mapproject.domain.usecase
 
+import com.android.mapproject.domain.DataRepository
 import javax.inject.Inject
 
 /**

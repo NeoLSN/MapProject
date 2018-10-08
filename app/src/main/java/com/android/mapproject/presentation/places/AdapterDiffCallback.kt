@@ -1,7 +1,7 @@
 package com.android.mapproject.presentation.places
 
 import androidx.recyclerview.widget.DiffUtil
-import com.android.mapproject.domain.ParkingPlace
+import com.android.mapproject.domain.model.ParkingPlace
 
 /**
  * Created by JasonYang.

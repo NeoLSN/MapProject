@@ -2,9 +2,9 @@ package com.android.mapproject.presentation.placedetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.android.mapproject.domain.CalculateRouteUseCase
-import com.android.mapproject.domain.GetLocationUseCase
-import com.android.mapproject.domain.GetParkingPlaceUseCase
+import com.android.mapproject.domain.usecase.CalculateRouteUseCase
+import com.android.mapproject.domain.usecase.GetLocationUseCase
+import com.android.mapproject.domain.usecase.GetParkingPlaceUseCase
 
 /**
  * Created by JasonYang.

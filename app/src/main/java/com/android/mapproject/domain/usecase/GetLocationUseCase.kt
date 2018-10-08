@@ -1,4 +1,4 @@
-package com.android.mapproject.domain
+package com.android.mapproject.domain.usecase
 
 import android.annotation.SuppressLint
 import android.location.Location
