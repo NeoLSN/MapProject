@@ -32,6 +32,7 @@ class ParkingPlacesViewModel(
     }
     val searchTerm = ObservableField<String>()
 
+    private var isLoaded = false
     private val subject = PublishSubject.create<String>()
 
     init {
@@ -53,16 +54,14 @@ class ParkingPlacesViewModel(
         disposables += worker
     }
 
-    private var isLoaded = false
-
     fun allPlaces(forceReload: Boolean = false) {
         if (isLoaded && !forceReload) return
         disposables += getPlaces.allPlaces()
                 .doOnSubscribe { isRefreshing.postValue(true) }
                 .subscribeOn(Schedulers.io())
                 .firstOrError()
+                .doAfterSuccess { isRefreshing.postValue(false) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .doAfterTerminate { isRefreshing.postValue(false) }
                 .subscribeBy(
                         onSuccess = {
                             isLoaded = true
