@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.android.mapproject.R
 import com.android.mapproject.databinding.FragmentPlaceDetailBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
 import com.android.mapproject.presentation.placedetail.PlaceDetailFragmentArgs.fromBundle
@@ -38,6 +37,7 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
     lateinit var viewModelFactory: PlaceDetailViewModelFactory
 
     private lateinit var viewDataBinding: FragmentPlaceDetailBinding
+    private lateinit var mapView: MapView
     private val disposables: CompositeDisposable = CompositeDisposable()
 
     override fun onAttach(context: Context?) {
@@ -54,14 +54,18 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
                             .of(this@PlaceDetailFragment, viewModelFactory)
                             .get(PlaceDetailViewModel::class.java)
                 }
+
+        with(viewDataBinding.map) {
+            mapView = this
+            mapView.onCreate(savedInstanceState)
+            mapView.getMapAsync(this@PlaceDetailFragment)
+        }
+
         return viewDataBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
 
         viewDataBinding.viewModel?.run {
             getParkingPlace(fromBundle(arguments).placeId)
@@ -70,9 +74,40 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
         checkPlayServicesAvailable()
     }
 
+    override fun onStart() {
+        super.onStart()
+        mapView.onStart()
+    }
+
+    override fun onResume() {
+        mapView.onResume()
+        super.onResume()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapView.onStop()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        mapView.onDestroy()
         disposables.clear()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView.onLowMemory()
     }
 
     private fun checkPlayServicesAvailable() {
