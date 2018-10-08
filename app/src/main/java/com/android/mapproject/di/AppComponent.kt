@@ -16,6 +16,7 @@ import javax.inject.Singleton
     AppModule::class,
     DataModule::class,
     ApiModule::class,
+    MapServiceModule::class,
     AndroidXInjectionModule::class
 ])
 interface AppComponent {

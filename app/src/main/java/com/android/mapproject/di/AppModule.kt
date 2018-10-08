@@ -1,10 +1,7 @@
 package com.android.mapproject.di
 
 import android.app.Application
-import com.android.mapproject.domain.FilterParkingPlacesUseCase
-import com.android.mapproject.domain.GetParkingPlaceUseCase
-import com.android.mapproject.domain.GetParkingPlacesUseCase
-import com.android.mapproject.domain.RefreshParkingPlacesUseCase
+import com.android.mapproject.domain.*
 import com.android.mapproject.presentation.MainActivity
 import com.android.mapproject.presentation.placedetail.PlaceDetailFragment
 import com.android.mapproject.presentation.placedetail.PlaceDetailViewModelFactory
@@ -51,7 +48,9 @@ abstract class AppModule {
         @JvmStatic
         @Provides
         fun providePlaceDetailViewModelFactory(
-                getPlace: GetParkingPlaceUseCase
-        ) = PlaceDetailViewModelFactory(getPlace)
+                getPlace: GetParkingPlaceUseCase,
+                getLocation: GetLocationUseCase,
+                calculateRoute: CalculateRouteUseCase
+        ) = PlaceDetailViewModelFactory(getPlace, getLocation, calculateRoute)
     }
 }

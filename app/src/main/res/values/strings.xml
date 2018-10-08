@@ -5,4 +5,5 @@
     <string name="parking_place_service_time">營業時間</string>
     <string name="parking_place_address">地址</string>
     <string name="search">Search</string>
+    <string name="planning_path">規劃路徑</string>
 </resources>
