@@ -9,7 +9,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.android.mapproject.R
 import com.android.mapproject.databinding.FragmentParkingPlacesBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
@@ -17,6 +16,7 @@ import com.android.mapproject.domain.model.ParkingPlace
 import com.android.mapproject.presentation.OnBackPressed
 import com.android.mapproject.presentation.ViewModelFactory
 import com.android.mapproject.presentation.places.ParkingPlacesFragmentDirections.actionPlaceListToPlaceDetail
+import com.android.mapproject.util.recyclerview.setLinearDivider
 import java.util.*
 import javax.inject.Inject
 
@@ -60,13 +60,9 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
     }
 
     private fun setupListView() {
-        with(viewModel) {
-            val lm = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            viewDataBinding.placeList.layoutManager = lm
-
+        viewDataBinding.placeList.apply {
             listAdapter = ParkingPlacesAdapter()
-            viewDataBinding.placeList.adapter = listAdapter
-
+            adapter = listAdapter
             listAdapter.onItemClick = { place ->
                 if (place is ParkingPlace) {
                     val navDirections = actionPlaceListToPlaceDetail(place.id!!)
@@ -74,21 +70,23 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
                 }
             }
 
-            places.observe(this@ParkingPlacesFragment, Observer { list ->
-                listAdapter.items = list
-            })
+            val lm = LinearLayoutManager(context)
+            layoutManager = lm
+            setLinearDivider(R.drawable.shape_divider_1dp_line, lm)
         }
+
+        viewModel.places.observe(this@ParkingPlacesFragment, Observer { list ->
+            listAdapter.items = list
+        })
     }
 
     private fun setupSwipeRefreshLayout() {
-        with(viewModel) {
-            isRefreshing.observe(this@ParkingPlacesFragment, Observer { isRefreshing ->
-                viewDataBinding.refreshLayout.isRefreshing = isRefreshing
+        viewDataBinding.refreshLayout.apply {
+            viewModel.isRefreshing.observe(this@ParkingPlacesFragment, Observer { isRefreshing ->
+                this.isRefreshing = isRefreshing
             })
-            viewDataBinding.refreshLayout.setScrollUpChild(viewDataBinding.placeList)
-            viewDataBinding.refreshLayout.setOnRefreshListener {
-                refreshParkingPlaces()
-            }
+            setScrollUpChild(viewDataBinding.placeList)
+            setOnRefreshListener { viewModel.refreshParkingPlaces() }
         }
     }
 
