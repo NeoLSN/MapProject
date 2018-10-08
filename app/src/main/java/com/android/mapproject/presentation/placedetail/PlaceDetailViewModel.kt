@@ -11,7 +11,6 @@ import com.android.mapproject.presentation.BaseViewModel
 import com.android.mapproject.util.coordinate.CoordinateTransformer
 import com.android.mapproject.util.zip
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.PolyUtil
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
@@ -38,8 +37,9 @@ class PlaceDetailViewModel(
         disposables += getPlace.getPlace(id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .firstOrError()
                 .subscribeBy(
-                        onNext = {
+                        onSuccess = {
                             place.set(it)
                             val twdX = it.tw97x?.toDouble() ?: 0.0
                             val twdY = it.tw97y?.toDouble() ?: 0.0
@@ -54,8 +54,9 @@ class PlaceDetailViewModel(
         disposables += getLocation.getCurrentLocation()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .firstOrError()
                 .subscribeBy(
-                        onNext = { latLng ->
+                        onSuccess = { latLng ->
                             Log.i("PlaceDetailViewModel", "$latLng")
                             currentLocation.postValue(latLng)
                         },
@@ -64,14 +65,14 @@ class PlaceDetailViewModel(
     }
 
     fun calculateRoute(origin: LatLng, destination: LatLng) {
-        try {
-            val o = com.google.maps.model.LatLng(origin.latitude, origin.longitude)
-            val d = com.google.maps.model.LatLng(destination.latitude, destination.longitude)
-            val results = calculateRoute.calculateRoute(o, d)
-            val decodedPath = PolyUtil.decode(results.routes[0].overviewPolyline.encodedPath)
-            route.postValue(decodedPath)
-        } catch (e: Throwable) {
-            Log.w("PlaceDetailViewModel", "Planning route error -> $e")
-        }
+        disposables += calculateRoute.calculateRoute(origin, destination)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .firstOrError()
+                .subscribeBy(
+                        onSuccess = { decodedPath -> route.postValue(decodedPath) },
+                        onError = { e -> Log.w("PlaceDetailViewModel", "Calculate route error $e") }
+                )
+
     }
 }

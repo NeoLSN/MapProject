@@ -1,20 +1,14 @@
 package com.android.mapproject.domain.usecase
 
-import com.google.maps.DirectionsApi
-import com.google.maps.GeoApiContext
-import com.google.maps.model.DirectionsResult
-import com.google.maps.model.LatLng
+import com.android.mapproject.domain.DataRepository
+import com.google.android.gms.maps.model.LatLng
 import javax.inject.Inject
 
 /**
  * Created by JasonYang.
  */
-class CalculateRouteUseCase @Inject constructor(private val geo: GeoApiContext) {
+class CalculateRouteUseCase @Inject constructor(private val dataRepo: DataRepository) {
 
-    fun calculateRoute(origin: LatLng, destination: LatLng): DirectionsResult {
-        return DirectionsApi.newRequest(geo)
-                .origin(origin)
-                .destination(destination)
-                .await()
-    }
+    fun calculateRoute(origin: LatLng, destination: LatLng) =
+            dataRepo.calculateRoute(origin, destination)
 }

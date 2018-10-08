@@ -45,8 +45,9 @@ class ParkingPlacesViewModel(
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .firstOrError()
                 .subscribeBy(
-                        onNext = { places.postValue(it) },
+                        onSuccess = { places.postValue(it) },
                         onError = { e -> Log.w("ParkingPlacesViewModel", "Filter places error: $e") }
                 )
         disposables += worker
@@ -57,8 +58,8 @@ class ParkingPlacesViewModel(
         searchTerm.set("")
         disposables += getPlaces.allPlaces()
                 .subscribeOn(Schedulers.io())
-                .firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())
+                .firstOrError()
                 .subscribeBy(
                         onSuccess = {
                             isLoaded = true
