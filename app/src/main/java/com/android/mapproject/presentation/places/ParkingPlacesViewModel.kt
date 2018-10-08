@@ -36,15 +36,14 @@ class ParkingPlacesViewModel @Inject constructor(
         val worker = subject
                 .debounce(500, TimeUnit.MILLISECONDS)
                 .doOnNext { searchTerm.set(it) }
-                .switchMap { str ->
-                    if (str.isBlank()) dataRepo.allPlaces().toObservable()
-                    else dataRepo.filter(str).toObservable()
+                .switchMap { term ->
+                    if (term.isBlank()) dataRepo.allPlaces().toObservable()
+                    else dataRepo.filter(term).toObservable()
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .firstOrError()
                 .subscribeBy(
-                        onSuccess = { places.postValue(it) },
+                        onNext = { places.postValue(it) },
                         onError = { e -> Log.w("ParkingPlacesViewModel", "Filter places error: $e") }
                 )
         disposables += worker
