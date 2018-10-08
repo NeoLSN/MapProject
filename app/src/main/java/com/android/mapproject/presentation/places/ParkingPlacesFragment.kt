@@ -14,6 +14,7 @@ import com.android.mapproject.R
 import com.android.mapproject.databinding.FragmentParkingPlacesBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
 import com.android.mapproject.domain.model.ParkingPlace
+import com.android.mapproject.presentation.OnBackPressed
 import com.android.mapproject.presentation.places.ParkingPlacesFragmentDirections.actionPlaceListToPlaceDetail
 import java.util.*
 import javax.inject.Inject
@@ -21,13 +22,14 @@ import javax.inject.Inject
 /**
  * Created by JasonYang.
  */
-class ParkingPlacesFragment : Fragment() {
+class ParkingPlacesFragment : Fragment(), OnBackPressed {
 
     @Inject
     lateinit var viewModelFactory: ParkingPlacesViewModelFactory
 
     private lateinit var viewDataBinding: FragmentParkingPlacesBinding
     private lateinit var listAdapter: ParkingPlacesAdapter
+    private lateinit var searchView: SearchView
 
     override fun onAttach(context: Context?) {
         AndroidXInjection.inject(this)
@@ -92,7 +94,7 @@ class ParkingPlacesFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.search_menu, menu)
 
-        val searchView = menu?.findItem(R.id.action_search)
+        searchView = menu?.findItem(R.id.action_search)
                 ?.actionView as SearchView
 
         searchView.let { it ->
@@ -134,5 +136,13 @@ class ParkingPlacesFragment : Fragment() {
         super.onStart()
 
         viewDataBinding.viewModel?.allPlaces()
+    }
+
+    override fun onBackPressed(): Boolean {
+        return if (!searchView.isIconified) {
+            searchView.isIconified = true
+            searchView.setQuery("", false)
+            true
+        } else false
     }
 }

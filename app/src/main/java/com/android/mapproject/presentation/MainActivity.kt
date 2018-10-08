@@ -22,5 +22,25 @@ class MainActivity : AppCompatActivity(), HasAndroidXFragmentInjector {
         setContentView(R.layout.activity_main)
     }
 
+    override fun onBackPressed() {
+        val fragmentList = supportFragmentManager.fragments
+        if (!onFragmentListBackPressed(fragmentList)) super.onBackPressed()
+    }
+
+    private fun onFragmentBackPressed(fragment: Fragment): Boolean {
+        val fragmentList = fragment.childFragmentManager.fragments
+        return onFragmentListBackPressed(fragmentList)
+    }
+
+    private fun onFragmentListBackPressed(fragments: List<Fragment>) : Boolean {
+        for (f in fragments) {
+            if (onFragmentBackPressed(f)) return true
+            if (f is OnBackPressed) {
+                if (f.onBackPressed()) return true
+            }
+        }
+        return false
+    }
+
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = fragmentDispatchingAndroidInjector
 }
