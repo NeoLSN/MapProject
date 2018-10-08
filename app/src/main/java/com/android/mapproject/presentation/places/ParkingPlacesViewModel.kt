@@ -39,14 +39,12 @@ class ParkingPlacesViewModel(
         val worker = subject
                 .debounce(500, TimeUnit.MILLISECONDS)
                 .doOnNext { searchTerm.set(it) }
-                .doOnNext { isRefreshing.postValue(true) }
                 .switchMap { str ->
                     if (str.isBlank()) getPlaces.allPlaces().toObservable()
                     else filter.filter(str).toObservable()
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext { isRefreshing.postValue(false) }
                 .subscribeBy(
                         onNext = { places.postValue(it) },
                         onError = { e -> Log.w("ParkingPlacesViewModel", "Filter places error: $e") }
@@ -56,11 +54,10 @@ class ParkingPlacesViewModel(
 
     fun allPlaces(forceReload: Boolean = false) {
         if (isLoaded && !forceReload) return
+        searchTerm.set("")
         disposables += getPlaces.allPlaces()
-                .doOnSubscribe { isRefreshing.postValue(true) }
                 .subscribeOn(Schedulers.io())
                 .firstOrError()
-                .doAfterSuccess { isRefreshing.postValue(false) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                         onSuccess = {
@@ -75,8 +72,8 @@ class ParkingPlacesViewModel(
     fun refreshParkingPlaces() {
         if (isRefreshing.value == true) return
         disposables += refresh.refreshParkingPlaces()
-                .subscribeOn(Schedulers.io())
                 .doOnSubscribe { isRefreshing.postValue(true) }
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doAfterTerminate { isRefreshing.postValue(false) }
                 .subscribeBy(

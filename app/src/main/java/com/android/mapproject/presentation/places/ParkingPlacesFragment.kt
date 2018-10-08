@@ -103,7 +103,7 @@ class ParkingPlacesFragment : Fragment() {
 
             it.setOnCloseListener {
                 listAdapter.items = Collections.emptyList()
-                viewDataBinding.viewModel?.filterPlaces("")
+                viewDataBinding.viewModel?.allPlaces(true)
                 viewDataBinding.refreshLayout.isEnabled = true
                 false
             }
