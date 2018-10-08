@@ -18,6 +18,9 @@ interface ParkingPlacesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(places: List<ParkingPlaceEntity>)
 
+    @Query("DELETE FROM parking_places")
+    fun deleteAll()
+
     @Query("SELECT * FROM parking_places WHERE id = :id LIMIT 1")
     fun placeById(id: String): Flowable<ParkingPlaceEntity>
 

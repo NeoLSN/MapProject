@@ -20,6 +20,9 @@ class LocalDataSource(
                 placesDao.insertAll(places.map { mapper.toDb(it) })
             }
 
+    fun deleteAll(): Completable =
+            Completable.fromAction { placesDao.deleteAll() }
+
     fun placeById(id: String): Flowable<ParkingPlace> =
             placesDao.placeById(id).map { mapper.fromDb(it) }
 

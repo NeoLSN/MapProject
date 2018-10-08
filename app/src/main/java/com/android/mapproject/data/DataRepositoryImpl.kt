@@ -23,7 +23,9 @@ class DataRepositoryImpl(
 
     override fun refreshPlaces() =
             remote.allPlaces()
-                    .flatMapCompletable { places -> local.insertAll(places) }
+                    .flatMapCompletable { places ->
+                        local.deleteAll().andThen(local.insertAll(places))
+                    }
 
     override fun getCurrentLocation() = map.getCurrentLocation()
 
