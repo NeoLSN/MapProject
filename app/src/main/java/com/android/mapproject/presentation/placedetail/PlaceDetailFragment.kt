@@ -13,6 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.android.mapproject.databinding.FragmentPlaceDetailBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
+import com.android.mapproject.presentation.ViewModelFactory
 import com.android.mapproject.presentation.placedetail.PlaceDetailFragmentArgs.fromBundle
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -34,7 +35,7 @@ import javax.inject.Inject
 class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
 
     @Inject
-    lateinit var viewModelFactory: PlaceDetailViewModelFactory
+    lateinit var viewModelFactory: ViewModelFactory
 
     private lateinit var viewDataBinding: FragmentPlaceDetailBinding
     private lateinit var mapView: MapView
@@ -160,14 +161,15 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
             })
 
             locations.observe(this@PlaceDetailFragment, Observer {
+                val origin = it.first
+                val dest = it.second
                 map?.let { map ->
                     map.clear()
-                    val origin = it.first
+
                     val sMarkerOptions = MarkerOptions()
                             .position(origin)
                     map.addMarker(sMarkerOptions)
 
-                    val dest = it.second
                     val eMarkerOptions = MarkerOptions()
                             .position(dest)
                             .title(place?.name)
@@ -175,9 +177,8 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
 
                     val move = moveCamera(origin, dest)
                     map.animateCamera(move)
-
-                    calculateRoute(origin, dest)
                 }
+                calculateRoute(origin, dest)
             })
 
             route.observe(this@PlaceDetailFragment, Observer {

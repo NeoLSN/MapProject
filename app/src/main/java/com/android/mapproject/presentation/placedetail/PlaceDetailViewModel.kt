@@ -3,10 +3,8 @@ package com.android.mapproject.presentation.placedetail
 import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
+import com.android.mapproject.domain.DataRepository
 import com.android.mapproject.domain.model.ParkingPlace
-import com.android.mapproject.domain.usecase.CalculateRouteUseCase
-import com.android.mapproject.domain.usecase.GetLocationUseCase
-import com.android.mapproject.domain.usecase.GetParkingPlaceUseCase
 import com.android.mapproject.presentation.BaseViewModel
 import com.android.mapproject.util.coordinate.CoordinateTransformer
 import com.android.mapproject.util.zip
@@ -15,14 +13,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 /**
  * Created by JasonYang.
  */
-class PlaceDetailViewModel(
-        private val getPlace: GetParkingPlaceUseCase,
-        private val getLocation: GetLocationUseCase,
-        private val calculateRoute: CalculateRouteUseCase
+class PlaceDetailViewModel @Inject constructor(
+        private val dataRepo: DataRepository
 ) : BaseViewModel() {
 
     private var transformer = CoordinateTransformer()
@@ -34,7 +31,7 @@ class PlaceDetailViewModel(
     val route = MutableLiveData<List<LatLng>>()
 
     fun getParkingPlace(id: String) {
-        disposables += getPlace.getPlace(id)
+        disposables += dataRepo.getPlace(id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .firstOrError()
@@ -51,7 +48,7 @@ class PlaceDetailViewModel(
     }
 
     fun getCurrentLocation() {
-        disposables += getLocation.getCurrentLocation()
+        disposables += dataRepo.getCurrentLocation()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .firstOrError()
@@ -65,7 +62,7 @@ class PlaceDetailViewModel(
     }
 
     fun calculateRoute(origin: LatLng, destination: LatLng) {
-        disposables += calculateRoute.calculateRoute(origin, destination)
+        disposables += dataRepo.calculateRoute(origin, destination)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .firstOrError()

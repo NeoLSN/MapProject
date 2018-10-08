@@ -15,6 +15,7 @@ import com.android.mapproject.databinding.FragmentParkingPlacesBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
 import com.android.mapproject.domain.model.ParkingPlace
 import com.android.mapproject.presentation.OnBackPressed
+import com.android.mapproject.presentation.ViewModelFactory
 import com.android.mapproject.presentation.places.ParkingPlacesFragmentDirections.actionPlaceListToPlaceDetail
 import java.util.*
 import javax.inject.Inject
@@ -25,7 +26,13 @@ import javax.inject.Inject
 class ParkingPlacesFragment : Fragment(), OnBackPressed {
 
     @Inject
-    lateinit var viewModelFactory: ParkingPlacesViewModelFactory
+    lateinit var viewModelFactory: ViewModelFactory
+
+    private val viewModel: ParkingPlacesViewModel by lazy {
+        ViewModelProviders
+                .of(this, viewModelFactory)
+                .get(ParkingPlacesViewModel::class.java)
+    }
 
     private lateinit var viewDataBinding: FragmentParkingPlacesBinding
     private lateinit var listAdapter: ParkingPlacesAdapter
@@ -38,13 +45,7 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        viewDataBinding = FragmentParkingPlacesBinding
-                .inflate(inflater, container, false)
-                .apply {
-                    viewModel = ViewModelProviders
-                            .of(this@ParkingPlacesFragment, viewModelFactory)
-                            .get(ParkingPlacesViewModel::class.java)
-                }
+        viewDataBinding = FragmentParkingPlacesBinding.inflate(inflater, container, false)
         return viewDataBinding.root
     }
 
@@ -59,7 +60,7 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
     }
 
     private fun setupListView() {
-        viewDataBinding.viewModel?.let {
+        with(viewModel) {
             val lm = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             viewDataBinding.placeList.layoutManager = lm
 
@@ -73,20 +74,20 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
                 }
             }
 
-            it.places.observe(this, Observer { list ->
+            places.observe(this@ParkingPlacesFragment, Observer { list ->
                 listAdapter.items = list
             })
         }
     }
 
     private fun setupSwipeRefreshLayout() {
-        viewDataBinding.viewModel?.let {
-            it.isRefreshing.observe(this, Observer { isRefreshing ->
+        with(viewModel) {
+            isRefreshing.observe(this@ParkingPlacesFragment, Observer { isRefreshing ->
                 viewDataBinding.refreshLayout.isRefreshing = isRefreshing
             })
             viewDataBinding.refreshLayout.setScrollUpChild(viewDataBinding.placeList)
             viewDataBinding.refreshLayout.setOnRefreshListener {
-                it.refreshParkingPlaces()
+                refreshParkingPlaces()
             }
         }
     }
@@ -105,26 +106,26 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
 
             it.setOnCloseListener {
                 listAdapter.items = Collections.emptyList()
-                viewDataBinding.viewModel?.allPlaces(true)
                 viewDataBinding.refreshLayout.isEnabled = true
+                viewModel.allPlaces(true)
                 false
             }
 
             it.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
-                    viewDataBinding.viewModel?.filterPlaces(query)
+                    viewModel.filterPlaces(query)
                     return false
                 }
 
                 override fun onQueryTextChange(query: String): Boolean {
-                    viewDataBinding.viewModel?.filterPlaces(query)
+                    viewModel.filterPlaces(query)
                     return false
                 }
             })
         }
 
-        viewDataBinding.viewModel?.let {
-            val term = it.searchTerm.get()
+        with(viewModel) {
+            val term = searchTerm.get()
             if (!term.isNullOrBlank()) {
                 searchView.isIconified = false
                 searchView.setQuery(term, true)
@@ -135,7 +136,7 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
     override fun onStart() {
         super.onStart()
 
-        viewDataBinding.viewModel?.allPlaces()
+        viewModel.allPlaces()
     }
 
     override fun onBackPressed(): Boolean {

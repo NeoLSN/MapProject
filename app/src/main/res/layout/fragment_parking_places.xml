@@ -2,13 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.android.mapproject.presentation.places.ParkingPlacesViewModel"/>
-    </data>
-
     <com.android.mapproject.presentation.places.ScrollChildSwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
@@ -21,4 +14,5 @@
             android:scrollbars="vertical"
             tools:listitem="@layout/place_item"/>
     </com.android.mapproject.presentation.places.ScrollChildSwipeRefreshLayout>
+
 </layout>
