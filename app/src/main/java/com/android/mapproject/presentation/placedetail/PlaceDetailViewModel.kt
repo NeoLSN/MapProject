@@ -64,10 +64,14 @@ class PlaceDetailViewModel(
     }
 
     fun calculateRoute(origin: LatLng, destination: LatLng) {
-        val o = com.google.maps.model.LatLng(origin.latitude, origin.longitude)
-        val d = com.google.maps.model.LatLng(destination.latitude, destination.longitude)
-        val results = calculateRoute.calculateRoute(o, d)
-        val decodedPath = PolyUtil.decode(results.routes[0].overviewPolyline.encodedPath)
-        route.postValue(decodedPath)
+        try {
+            val o = com.google.maps.model.LatLng(origin.latitude, origin.longitude)
+            val d = com.google.maps.model.LatLng(destination.latitude, destination.longitude)
+            val results = calculateRoute.calculateRoute(o, d)
+            val decodedPath = PolyUtil.decode(results.routes[0].overviewPolyline.encodedPath)
+            route.postValue(decodedPath)
+        } catch (e: Throwable) {
+            Log.w("PlaceDetailViewModel", "Planning route error -> $e")
+        }
     }
 }
