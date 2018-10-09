@@ -3,8 +3,10 @@ package com.android.mapproject.presentation.places
 import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
-import com.android.mapproject.domain.DataRepository
 import com.android.mapproject.domain.model.ParkingPlace
+import com.android.mapproject.domain.usecase.FilterParkingPlacesUseCase
+import com.android.mapproject.domain.usecase.GetParkingPlacesUseCase
+import com.android.mapproject.domain.usecase.RefreshParkingPlacesUseCase
 import com.android.mapproject.presentation.BaseViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
@@ -18,7 +20,9 @@ import javax.inject.Inject
  * Created by JasonYang.
  */
 class ParkingPlacesViewModel @Inject constructor(
-        private val dataRepo: DataRepository
+        private val refresh: RefreshParkingPlacesUseCase,
+        private val getPlaces: GetParkingPlacesUseCase,
+        private val filter: FilterParkingPlacesUseCase
 ) : BaseViewModel() {
 
     val places = MutableLiveData<List<ParkingPlace>>()
@@ -37,8 +41,8 @@ class ParkingPlacesViewModel @Inject constructor(
                 .debounce(500, TimeUnit.MILLISECONDS)
                 .doOnNext { searchTerm.set(it) }
                 .switchMap { term ->
-                    if (term.isBlank()) dataRepo.allPlaces().toObservable()
-                    else dataRepo.filter(term).toObservable()
+                    if (term.isBlank()) getPlaces.allPlaces().toObservable()
+                    else filter.filter(term).toObservable()
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -52,7 +56,7 @@ class ParkingPlacesViewModel @Inject constructor(
     fun allPlaces(forceReload: Boolean = false) {
         if (isLoaded && !forceReload) return
         searchTerm.set("")
-        disposables += dataRepo.allPlaces()
+        disposables += getPlaces.allPlaces()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .firstOrError()
@@ -68,7 +72,7 @@ class ParkingPlacesViewModel @Inject constructor(
 
     fun refreshParkingPlaces() {
         if (isRefreshing.value == true) return
-        disposables += dataRepo.refreshPlaces()
+        disposables += refresh.refreshPlaces()
                 .doOnSubscribe { isRefreshing.postValue(true) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

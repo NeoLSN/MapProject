@@ -3,8 +3,10 @@ package com.android.mapproject.presentation.placedetail
 import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
-import com.android.mapproject.domain.DataRepository
 import com.android.mapproject.domain.model.ParkingPlace
+import com.android.mapproject.domain.usecase.CalculateRouteUseCase
+import com.android.mapproject.domain.usecase.GetLocationUseCase
+import com.android.mapproject.domain.usecase.GetParkingPlaceUseCase
 import com.android.mapproject.presentation.BaseViewModel
 import com.android.mapproject.util.coordinate.CoordinateTransformer
 import com.android.mapproject.util.zip
@@ -19,7 +21,9 @@ import javax.inject.Inject
  * Created by JasonYang.
  */
 class PlaceDetailViewModel @Inject constructor(
-        private val dataRepo: DataRepository
+        private val getPlace: GetParkingPlaceUseCase,
+        private val getLocation: GetLocationUseCase,
+        private val calculateRoute: CalculateRouteUseCase
 ) : BaseViewModel() {
 
     private var transformer = CoordinateTransformer()
@@ -31,7 +35,7 @@ class PlaceDetailViewModel @Inject constructor(
     val route = MutableLiveData<List<LatLng>>()
 
     fun getParkingPlace(id: String) {
-        disposables += dataRepo.getPlace(id)
+        disposables += getPlace.getPlace(id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .firstOrError()
@@ -48,7 +52,7 @@ class PlaceDetailViewModel @Inject constructor(
     }
 
     fun getCurrentLocation() {
-        disposables += dataRepo.getCurrentLocation()
+        disposables += getLocation.getCurrentLocation()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .firstOrError()
@@ -62,7 +66,7 @@ class PlaceDetailViewModel @Inject constructor(
     }
 
     fun calculateRoute(origin: LatLng, destination: LatLng) {
-        disposables += dataRepo.calculateRoute(origin, destination)
+        disposables += calculateRoute.calculateRoute(origin, destination)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .firstOrError()

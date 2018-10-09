@@ -3,7 +3,6 @@ package com.android.mapproject.data
 import com.android.mapproject.data.source.local.LocalDataSource
 import com.android.mapproject.data.source.map.MapDataSource
 import com.android.mapproject.data.source.remote.RemoteDataSource
-import com.android.mapproject.domain.DataRepository
 import com.google.android.gms.maps.model.LatLng
 
 /**

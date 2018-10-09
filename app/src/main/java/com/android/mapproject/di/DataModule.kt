@@ -9,7 +9,7 @@ import com.android.mapproject.data.source.local.ParkingPlacesDatabase
 import com.android.mapproject.data.source.map.MapDataSource
 import com.android.mapproject.data.source.remote.ParkingPlaceService
 import com.android.mapproject.data.source.remote.RemoteDataSource
-import com.android.mapproject.domain.DataRepository
+import com.android.mapproject.data.DataRepository
 import com.google.maps.GeoApiContext
 import com.patloew.rxlocation.RxLocation
 import dagger.Module

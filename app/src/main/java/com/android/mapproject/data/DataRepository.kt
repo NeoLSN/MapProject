@@ -1,4 +1,4 @@
-package com.android.mapproject.domain
+package com.android.mapproject.data
 
 import com.android.mapproject.domain.model.ParkingPlace
 import com.google.android.gms.maps.model.LatLng
