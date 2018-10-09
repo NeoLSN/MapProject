@@ -1,6 +1,7 @@
 package com.android.mapproject.di
 
 import android.content.Context
+import com.android.mapproject.data.DataRepository
 import com.android.mapproject.data.DataRepositoryImpl
 import com.android.mapproject.data.source.local.DataMapper
 import com.android.mapproject.data.source.local.LocalDataSource
@@ -9,7 +10,7 @@ import com.android.mapproject.data.source.local.ParkingPlacesDatabase
 import com.android.mapproject.data.source.map.MapDataSource
 import com.android.mapproject.data.source.remote.ParkingPlaceService
 import com.android.mapproject.data.source.remote.RemoteDataSource
-import com.android.mapproject.data.DataRepository
+import com.android.mapproject.util.rx.SchedulerProvider
 import com.google.maps.GeoApiContext
 import com.patloew.rxlocation.RxLocation
 import dagger.Module
@@ -47,6 +48,7 @@ class DataModule {
     fun provideRepository(
             remote: RemoteDataSource,
             local: LocalDataSource,
-            map: MapDataSource
-    ): DataRepository = DataRepositoryImpl(remote, local, map)
+            map: MapDataSource,
+            schedulerProvider: SchedulerProvider
+    ): DataRepository = DataRepositoryImpl(remote, local, map, schedulerProvider)
 }

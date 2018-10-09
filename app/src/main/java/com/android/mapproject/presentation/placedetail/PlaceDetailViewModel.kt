@@ -9,12 +9,11 @@ import com.android.mapproject.domain.usecase.CalculateRouteUseCase
 import com.android.mapproject.domain.usecase.GetLocationUseCase
 import com.android.mapproject.domain.usecase.GetParkingPlaceUseCase
 import com.android.mapproject.presentation.BaseViewModel
+import com.android.mapproject.util.rx.SchedulerProvider
 import com.android.mapproject.util.zip
 import com.google.android.gms.maps.model.LatLng
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 /**
@@ -24,7 +23,8 @@ class PlaceDetailViewModel @Inject constructor(
         private val getPlace: GetParkingPlaceUseCase,
         private val getLocation: GetLocationUseCase,
         private val calculateRoute: CalculateRouteUseCase,
-        private val transformer : CoordinateTransformer
+        private val transformer : CoordinateTransformer,
+        private val schedulerProvider: SchedulerProvider
 ) : BaseViewModel() {
 
     val place = ObservableField<ParkingPlace>()
@@ -35,8 +35,7 @@ class PlaceDetailViewModel @Inject constructor(
 
     fun getParkingPlace(id: String) {
         disposables += getPlace.getPlace(id)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(schedulerProvider.ui())
                 .firstOrError()
                 .subscribeBy(
                         onSuccess = {
@@ -52,8 +51,7 @@ class PlaceDetailViewModel @Inject constructor(
 
     fun getCurrentLocation() {
         disposables += getLocation.getCurrentLocation()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(schedulerProvider.ui())
                 .firstOrError()
                 .subscribeBy(
                         onSuccess = { latLng ->
@@ -66,8 +64,7 @@ class PlaceDetailViewModel @Inject constructor(
 
     fun calculateRoute(origin: LatLng, destination: LatLng) {
         disposables += calculateRoute.calculateRoute(origin, destination)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(schedulerProvider.ui())
                 .firstOrError()
                 .subscribeBy(
                         onSuccess = { decodedPath -> route.postValue(decodedPath) },
