@@ -33,7 +33,6 @@ class MapServiceModule {
                 .build()
     }
 
-    @Singleton
     @Provides
     fun provideCoordinateTransformer() = CoordinateTransformer()
 }
