@@ -1,12 +1,12 @@
-package com.android.mapproject.util.coordinate
+package com.android.mapproject.data.source.map
 
 import com.google.android.gms.maps.model.LatLng
-
+import javax.inject.Inject
 
 /**
  * Created by JasonYang.
  */
-class CoordinateTransformer {
+class CoordinateTransformer @Inject constructor() {
 
     /*
      * The method reference

@@ -2,6 +2,7 @@ package com.android.mapproject.di
 
 import android.content.Context
 import com.android.mapproject.R
+import com.android.mapproject.data.source.map.CoordinateTransformer
 import com.google.maps.GeoApiContext
 import com.patloew.rxlocation.RxLocation
 import dagger.Module
@@ -31,4 +32,8 @@ class MapServiceModule {
                 .writeTimeout(1, TimeUnit.SECONDS)
                 .build()
     }
+
+    @Singleton
+    @Provides
+    fun provideCoordinateTransformer() = CoordinateTransformer()
 }

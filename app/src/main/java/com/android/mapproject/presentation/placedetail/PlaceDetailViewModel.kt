@@ -3,12 +3,12 @@ package com.android.mapproject.presentation.placedetail
 import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
+import com.android.mapproject.data.source.map.CoordinateTransformer
 import com.android.mapproject.domain.model.ParkingPlace
 import com.android.mapproject.domain.usecase.CalculateRouteUseCase
 import com.android.mapproject.domain.usecase.GetLocationUseCase
 import com.android.mapproject.domain.usecase.GetParkingPlaceUseCase
 import com.android.mapproject.presentation.BaseViewModel
-import com.android.mapproject.util.coordinate.CoordinateTransformer
 import com.android.mapproject.util.zip
 import com.google.android.gms.maps.model.LatLng
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,10 +23,9 @@ import javax.inject.Inject
 class PlaceDetailViewModel @Inject constructor(
         private val getPlace: GetParkingPlaceUseCase,
         private val getLocation: GetLocationUseCase,
-        private val calculateRoute: CalculateRouteUseCase
+        private val calculateRoute: CalculateRouteUseCase,
+        private val transformer : CoordinateTransformer
 ) : BaseViewModel() {
-
-    private var transformer = CoordinateTransformer()
 
     val place = ObservableField<ParkingPlace>()
     val coordinate = MutableLiveData<LatLng>()
@@ -74,6 +73,5 @@ class PlaceDetailViewModel @Inject constructor(
                         onSuccess = { decodedPath -> route.postValue(decodedPath) },
                         onError = { e -> Log.w("PlaceDetailViewModel", "Calculate route error $e") }
                 )
-
     }
 }
