@@ -16,7 +16,7 @@ import javax.inject.Singleton
     AppModule::class,
     MainActivityBuilder::class,
     DataModule::class,
-    ApiModule::class,
+    ApiServiceModule::class,
     MapServiceModule::class,
     ViewModelModule::class,
     AndroidXInjectionModule::class

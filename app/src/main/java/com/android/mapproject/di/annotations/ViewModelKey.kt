@@ -1,4 +1,4 @@
-package com.android.mapproject.di
+package com.android.mapproject.di.annotations
 
 import androidx.lifecycle.ViewModel
 import dagger.MapKey

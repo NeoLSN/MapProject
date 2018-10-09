@@ -16,7 +16,7 @@ import javax.inject.Singleton
  * Created by JasonYang.
  */
 @Module
-class ApiModule {
+class ApiServiceModule {
 
     @Singleton
     @Provides

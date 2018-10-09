@@ -2,6 +2,7 @@ package com.android.mapproject.di
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
+import com.android.mapproject.di.annotations.ViewModelKey
 import com.android.mapproject.presentation.MainActivity
 import com.android.mapproject.presentation.placedetail.PlaceDetailFragment
 import com.android.mapproject.presentation.placedetail.PlaceDetailViewModel
