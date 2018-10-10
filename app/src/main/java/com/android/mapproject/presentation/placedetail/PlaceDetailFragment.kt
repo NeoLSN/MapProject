@@ -25,7 +25,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 
@@ -132,7 +132,7 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
 
     private fun planningPath() {
         val rxPermissions = RxPermissions(this)
-        disposables += rxPermissions
+        rxPermissions
                 .request(Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION)
                 .subscribeBy(
@@ -141,6 +141,7 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
                         },
                         onError = { e -> Log.w("PlaceDetailViewModel", "Location wrong $e") }
                 )
+                .addTo(disposables)
     }
 
     override fun onMapReady(map: GoogleMap?) {

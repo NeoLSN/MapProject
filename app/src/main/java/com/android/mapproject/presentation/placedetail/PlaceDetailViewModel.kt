@@ -9,6 +9,7 @@ import com.android.mapproject.domain.usecase.CalculateRouteUseCase
 import com.android.mapproject.domain.usecase.GetLocationUseCase
 import com.android.mapproject.domain.usecase.GetParkingPlaceUseCase
 import com.android.mapproject.presentation.BaseViewModel
+import com.android.mapproject.presentation.common.Event
 import com.android.mapproject.presentation.common.Result
 import com.android.mapproject.presentation.common.toResult
 import com.android.mapproject.util.rx.SchedulerProvider
@@ -32,6 +33,7 @@ class PlaceDetailViewModel @Inject constructor(
     val destination = MutableLiveData<LatLng>()
     private val currentLocation = MutableLiveData<LatLng>()
     val locations = currentLocation.zip(destination)
+    private var calEvent: Event<Unit>? = null
     val route = MutableLiveData<List<LatLng>>()
 
     fun getParkingPlace(id: String) {
@@ -43,6 +45,7 @@ class PlaceDetailViewModel @Inject constructor(
                     when (it) {
                         is Result.Success -> {
                             it.data?.apply {
+                                if (place.get() == this) return@apply
                                 place.set(this)
                                 val twdX = tw97x?.toDouble() ?: 0.0
                                 val twdY = tw97y?.toDouble() ?: 0.0
@@ -63,7 +66,10 @@ class PlaceDetailViewModel @Inject constructor(
                 .toResult()
                 .subscribe {
                     when (it) {
-                        is Result.Success -> currentLocation.postValue(it.data)
+                        is Result.Success -> {
+                            calEvent = Event(Unit)
+                            currentLocation.postValue(it.data)
+                        }
                         is Result.Failure -> Log.w("PlaceDetailViewModel", "Location wrong ${it.e}")
                     }
                 }
@@ -71,6 +77,7 @@ class PlaceDetailViewModel @Inject constructor(
     }
 
     fun calculateRoute(origin: LatLng, destination: LatLng) {
+        calEvent?.get() ?: return
         calculateRoute.calculateRoute(origin, destination)
                 .firstOrError()
                 .observeOn(schedulerProvider.ui())
