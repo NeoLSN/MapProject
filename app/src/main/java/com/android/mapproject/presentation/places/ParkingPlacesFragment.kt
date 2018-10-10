@@ -15,9 +15,9 @@ import com.android.mapproject.di.androidx.AndroidXInjection
 import com.android.mapproject.domain.model.ParkingPlace
 import com.android.mapproject.presentation.OnBackPressed
 import com.android.mapproject.presentation.ViewModelFactory
+import com.android.mapproject.presentation.common.Result
 import com.android.mapproject.presentation.places.ParkingPlacesFragmentDirections.actionPlaceListToPlaceDetail
 import com.android.mapproject.util.recyclerview.setLinearDivider
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -75,16 +75,18 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
             setLinearDivider(R.drawable.shape_divider_1dp_line, lm)
         }
 
-        viewModel.places.observe(this@ParkingPlacesFragment, Observer { list ->
-            listAdapter.items = list
+        viewModel.places.observe(this@ParkingPlacesFragment, Observer { result ->
+            viewDataBinding.refreshLayout.isRefreshing = result.inProgress
+            if (result is Result.Success) listAdapter.items = result.data
+        })
+
+        viewModel.refreshState.observe(this@ParkingPlacesFragment, Observer { result ->
+            viewDataBinding.refreshLayout.isRefreshing = result.inProgress
         })
     }
 
     private fun setupSwipeRefreshLayout() {
         viewDataBinding.refreshLayout.apply {
-            viewModel.isRefreshing.observe(this@ParkingPlacesFragment, Observer { isRefreshing ->
-                this.isRefreshing = isRefreshing
-            })
             setScrollUpChild(viewDataBinding.placeList)
             setOnRefreshListener { viewModel.refreshParkingPlaces() }
         }
@@ -93,8 +95,7 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.search_menu, menu)
 
-        searchView = menu?.findItem(R.id.action_search)
-                ?.actionView as SearchView
+        searchView = menu?.findItem(R.id.action_search)?.actionView as SearchView
 
         searchView.let { it ->
 
@@ -103,7 +104,7 @@ class ParkingPlacesFragment : Fragment(), OnBackPressed {
             }
 
             it.setOnCloseListener {
-                listAdapter.items = Collections.emptyList()
+                listAdapter.items = emptyList()
                 viewDataBinding.refreshLayout.isEnabled = true
                 viewModel.allPlaces(true)
                 false

@@ -1,6 +1,5 @@
 package com.android.mapproject.presentation.places
 
-import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import com.android.mapproject.domain.model.ParkingPlace
@@ -8,9 +7,10 @@ import com.android.mapproject.domain.usecase.FilterParkingPlacesUseCase
 import com.android.mapproject.domain.usecase.GetParkingPlacesUseCase
 import com.android.mapproject.domain.usecase.RefreshParkingPlacesUseCase
 import com.android.mapproject.presentation.BaseViewModel
+import com.android.mapproject.presentation.common.Result
+import com.android.mapproject.presentation.common.toResult
 import com.android.mapproject.util.rx.SchedulerProvider
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -25,59 +25,53 @@ class ParkingPlacesViewModel @Inject constructor(
         private val schedulerProvider: SchedulerProvider
 ) : BaseViewModel() {
 
-    val places = MutableLiveData<List<ParkingPlace>>()
-    val isRefreshing by lazy {
-        val bool = MutableLiveData<Boolean>()
-        bool.postValue(false)
-        bool
-    }
+    val places = MutableLiveData<Result<List<ParkingPlace>>>()
     val searchTerm = ObservableField<String>()
+    val refreshState = MutableLiveData<Result<*>>()
 
     private var isLoaded = false
     private val subject = PublishSubject.create<String>()
 
     init {
-        val worker = subject
-                .debounce(500, TimeUnit.MILLISECONDS)
+        subject.debounce(500, TimeUnit.MILLISECONDS)
                 .doOnNext { searchTerm.set(it) }
                 .switchMap { term ->
                     if (term.isBlank()) getPlaces.allPlaces().toObservable()
                     else filter.filter(term).toObservable()
                 }
                 .observeOn(schedulerProvider.ui())
-                .subscribeBy(
-                        onNext = { places.postValue(it) },
-                        onError = { e -> Log.w("ParkingPlacesViewModel", "Filter places error: $e") }
-                )
-        disposables += worker
+                .toResult()
+                .subscribe { places.postValue(it) }
+                .addTo(disposables)
     }
 
     fun allPlaces(forceReload: Boolean = false) {
         if (isLoaded && !forceReload) return
         searchTerm.set("")
-        disposables += getPlaces.allPlaces()
-                .observeOn(schedulerProvider.ui())
+        getPlaces.allPlaces()
                 .firstOrError()
-                .subscribeBy(
-                        onSuccess = {
-                            isLoaded = true
-                            if (it.isEmpty()) refreshParkingPlaces()
-                            places.postValue(it)
-                        },
-                        onError = { e -> Log.w("ParkingPlacesViewModel", "Get places error: $e") }
-                )
+                .observeOn(schedulerProvider.ui())
+                .toResult()
+                .subscribe {
+                    places.postValue(it)
+                    if (it is Result.Success) {
+                        isLoaded = true
+                        if (it.data.isEmpty()) refreshParkingPlaces()
+                    }
+                }
+                .addTo(disposables)
     }
 
     fun refreshParkingPlaces() {
-        if (isRefreshing.value == true) return
-        disposables += refresh.refreshPlaces()
-                .doOnSubscribe { isRefreshing.postValue(true) }
+        if (refreshState.value is Result.InProgress) return
+        refresh.refreshPlaces()
                 .observeOn(schedulerProvider.ui())
-                .doAfterTerminate { isRefreshing.postValue(false) }
-                .subscribeBy(
-                        onComplete = { allPlaces(true) },
-                        onError = { e -> Log.w("ParkingPlacesViewModel", "Refresh error: $e") }
-                )
+                .toResult()
+                .subscribe {
+                    refreshState.postValue(it)
+                    if (it is Result.Success) allPlaces(true)
+                }
+                .addTo(disposables)
     }
 
     fun filterPlaces(term: String) {

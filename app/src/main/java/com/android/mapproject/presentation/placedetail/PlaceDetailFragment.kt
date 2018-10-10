@@ -146,7 +146,7 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap?) {
         viewDataBinding.viewModel?.run {
             val place = place.get()
-            coordinate.observe(this@PlaceDetailFragment, Observer { coordinate ->
+            destination.observe(this@PlaceDetailFragment, Observer { coordinate ->
                 map?.let {
                     val markerOptions = MarkerOptions()
                             .position(coordinate)
