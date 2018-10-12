@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.android.mapproject.databinding.FragmentPlaceDetailBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
 import com.android.mapproject.presentation.ViewModelFactory
+import com.android.mapproject.presentation.common.Result
 import com.android.mapproject.presentation.placedetail.PlaceDetailFragmentArgs.fromBundle
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -135,46 +137,62 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap?) {
         viewDataBinding.viewModel?.run {
             val place = place.get()
-            destination.observe(this@PlaceDetailFragment, Observer { coordinate ->
-                map?.let {
-                    val markerOptions = MarkerOptions()
-                            .position(coordinate)
-                            .title(place?.name)
-                    it.addMarker(markerOptions)
+            destination.observe(this@PlaceDetailFragment, Observer {
+                when (it) {
+                    is Result.Success -> {
+                        it.data.run {
+                            map?.let {map ->
+                                val markerOptions = MarkerOptions()
+                                        .position(this)
+                                        .title(place?.name)
+                                map.addMarker(markerOptions)
 
-                    val move = moveCamera(coordinate)
-                    map.moveCamera(move)
-                    val zoom = CameraUpdateFactory.zoomTo(17f)
-                    map.animateCamera(zoom)
+                                val move = moveCamera(this)
+                                map.moveCamera(move)
+                                val zoom = CameraUpdateFactory.zoomTo(17f)
+                                map.animateCamera(zoom)
+                            }
+                        }
+                    }
+                    is Result.Failure -> Log.w("ParkingPlacesViewModel", "Get places error: ${it.e}")
                 }
             })
 
             locations.observe(this@PlaceDetailFragment, Observer {
-                val origin = it.first
-                val dest = it.second
-                map?.let { map ->
-                    map.clear()
+                when (it) {
+                    is Result.Success -> {
+                        val origin = it.data.first
+                        val dest = it.data.second
+                        map?.let { map ->
+                            map.clear()
 
-                    val sMarkerOptions = MarkerOptions()
-                            .position(origin)
-                    map.addMarker(sMarkerOptions)
+                            val sMarkerOptions = MarkerOptions()
+                                    .position(origin)
+                            map.addMarker(sMarkerOptions)
 
-                    val eMarkerOptions = MarkerOptions()
-                            .position(dest)
-                            .title(place?.name)
-                    map.addMarker(eMarkerOptions)
+                            val eMarkerOptions = MarkerOptions()
+                                    .position(dest)
+                                    .title(place?.name)
+                            map.addMarker(eMarkerOptions)
 
-                    val move = moveCamera(origin, dest)
-                    map.animateCamera(move)
+                            val move = moveCamera(origin, dest)
+                            map.animateCamera(move)
+                        }
+                    }
+                    is Result.Failure -> Log.w("PlaceDetailViewModel", "Location wrong ${it.e}")
                 }
-                calculateRoute(origin, dest)
             })
 
             route.observe(this@PlaceDetailFragment, Observer {
-                val route = PolylineOptions()
-                        .addAll(it)
-                        .color(Color.parseColor("#039BE5"))
-                map?.addPolyline(route)
+                when (it) {
+                    is Result.Success -> {
+                        val route = PolylineOptions()
+                                .addAll(it.data)
+                                .color(Color.parseColor("#039BE5"))
+                        map?.addPolyline(route)
+                    }
+                    is Result.Failure -> Log.w("PlaceDetailViewModel", "Calculate route error ${it.e}")
+                }
             })
         }
     }

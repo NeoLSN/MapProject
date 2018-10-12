@@ -27,7 +27,7 @@ class ParkingPlacesViewModel @Inject constructor(
 
     val places = MutableLiveData<Result<List<ParkingPlace>>>()
     val searchTerm = ObservableField<String>()
-    val refreshState = MutableLiveData<Result<*>>()
+    val refreshState = MutableLiveData<Result<Unit>>()
 
     private var isLoaded = false
     private val subject = PublishSubject.create<String>()
@@ -63,7 +63,6 @@ class ParkingPlacesViewModel @Inject constructor(
     }
 
     fun refreshParkingPlaces() {
-        if (refreshState.value is Result.InProgress) return
         refresh.refreshPlaces()
                 .observeOn(schedulerProvider.ui())
                 .toResult()
