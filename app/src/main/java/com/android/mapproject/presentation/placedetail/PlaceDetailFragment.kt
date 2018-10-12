@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,9 +23,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
 import com.tbruyelle.rxpermissions2.RxPermissions
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.addTo
-import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 
 /**
@@ -39,7 +35,6 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var viewDataBinding: FragmentPlaceDetailBinding
     private lateinit var mapView: MapView
-    private val disposables: CompositeDisposable = CompositeDisposable()
 
     override fun onAttach(context: Context?) {
         AndroidXInjection.inject(this)
@@ -103,7 +98,6 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
     override fun onDestroy() {
         super.onDestroy()
         mapView.onDestroy()
-        disposables.clear()
     }
 
     override fun onLowMemory() {
@@ -132,16 +126,10 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
 
     private fun planningPath() {
         val rxPermissions = RxPermissions(this)
-        rxPermissions
+        val request = rxPermissions
                 .request(Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION)
-                .subscribeBy(
-                        onNext = { granted ->
-                            if (granted) viewDataBinding.viewModel?.getCurrentLocation()
-                        },
-                        onError = { e -> Log.w("PlaceDetailViewModel", "Location wrong $e") }
-                )
-                .addTo(disposables)
+        viewDataBinding.viewModel?.requestLocation(request)
     }
 
     override fun onMapReady(map: GoogleMap?) {

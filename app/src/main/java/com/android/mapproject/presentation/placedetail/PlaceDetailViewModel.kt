@@ -15,7 +15,9 @@ import com.android.mapproject.presentation.common.toResult
 import com.android.mapproject.util.rx.SchedulerProvider
 import com.android.mapproject.util.zip
 import com.google.android.gms.maps.model.LatLng
+import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 
 /**
@@ -56,6 +58,17 @@ class PlaceDetailViewModel @Inject constructor(
                         is Result.Failure -> Log.w("ParkingPlacesViewModel", "Get places error: ${it.e}")
                     }
                 }
+                .addTo(disposables)
+    }
+
+    fun requestLocation(request: Observable<Boolean>) {
+        request
+                .subscribeBy(
+                        onNext = { granted ->
+                            if (granted) getCurrentLocation()
+                        },
+                        onError = { e -> Log.w("PlaceDetailViewModel", "Location wrong $e") }
+                )
                 .addTo(disposables)
     }
 
