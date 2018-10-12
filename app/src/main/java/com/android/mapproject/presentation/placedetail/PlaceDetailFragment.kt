@@ -36,6 +36,7 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
     lateinit var viewModelFactory: ViewModelFactory
 
     private lateinit var viewDataBinding: FragmentPlaceDetailBinding
+    private lateinit var viewModel: PlaceDetailViewModel
     private lateinit var mapView: MapView
 
     override fun onAttach(context: Context?) {
@@ -47,11 +48,9 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
                               savedInstanceState: Bundle?): View? {
         viewDataBinding = FragmentPlaceDetailBinding
                 .inflate(inflater, container, false)
-                .apply {
-                    viewModel = ViewModelProviders
-                            .of(this@PlaceDetailFragment, viewModelFactory)
-                            .get(PlaceDetailViewModel::class.java)
-                }
+        viewModel = ViewModelProviders
+                .of(this, viewModelFactory)
+                .get(PlaceDetailViewModel::class.java)
 
         with(viewDataBinding.map) {
             mapView = this
@@ -65,9 +64,7 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewDataBinding.viewModel?.run {
-            getParkingPlace(fromBundle(arguments).placeId)
-        }
+        viewModel.getParkingPlace(fromBundle(arguments).placeId)
 
         checkPlayServicesAvailable()
     }
@@ -78,8 +75,8 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onResume() {
-        mapView.onResume()
         super.onResume()
+        mapView.onResume()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -131,30 +128,31 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
         val request = rxPermissions
                 .request(Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION)
-        viewDataBinding.viewModel?.requestLocation(request)
+        viewModel.requestLocation(request)
     }
 
     override fun onMapReady(map: GoogleMap?) {
-        viewDataBinding.viewModel?.run {
-            val place = place.get()
-            destination.observe(this@PlaceDetailFragment, Observer {
+        with(viewModel) {
+            place.observe(this@PlaceDetailFragment, Observer {
                 when (it) {
-                    is Result.Success -> {
-                        it.data.run {
-                            map?.let {map ->
-                                val markerOptions = MarkerOptions()
-                                        .position(this)
-                                        .title(place?.name)
-                                map.addMarker(markerOptions)
-
-                                val move = moveCamera(this)
-                                map.moveCamera(move)
-                                val zoom = CameraUpdateFactory.zoomTo(17f)
-                                map.animateCamera(zoom)
-                            }
-                        }
-                    }
+                    is Result.Success -> viewDataBinding.place = it.data
                     is Result.Failure -> Log.w("ParkingPlacesViewModel", "Get places error: ${it.e}")
+                }
+            })
+
+            destination.observe(this@PlaceDetailFragment, Observer { dest ->
+                val pValue = place.value
+                val placeName = if (pValue is Result.Success) pValue.data.name else ""
+                map?.let { map ->
+                    val markerOptions = MarkerOptions()
+                            .position(dest)
+                            .title(placeName)
+                    map.addMarker(markerOptions)
+
+                    val move = moveCamera(dest)
+                    map.moveCamera(move)
+                    val zoom = CameraUpdateFactory.zoomTo(17f)
+                    map.animateCamera(zoom)
                 }
             })
 
@@ -163,6 +161,8 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
                     is Result.Success -> {
                         val origin = it.data.first
                         val dest = it.data.second
+                        val pValue = place.value
+                        val placeName = if (pValue is Result.Success) pValue.data.name else ""
                         map?.let { map ->
                             map.clear()
 
@@ -172,7 +172,7 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
 
                             val eMarkerOptions = MarkerOptions()
                                     .position(dest)
-                                    .title(place?.name)
+                                    .title(placeName)
                             map.addMarker(eMarkerOptions)
 
                             val move = moveCamera(origin, dest)

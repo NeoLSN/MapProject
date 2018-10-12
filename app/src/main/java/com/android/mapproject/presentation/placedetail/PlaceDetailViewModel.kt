@@ -1,7 +1,6 @@
 package com.android.mapproject.presentation.placedetail
 
 import android.util.Log
-import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import com.android.mapproject.data.source.map.CoordinateTransformer
 import com.android.mapproject.domain.model.ParkingPlace
@@ -29,32 +28,26 @@ class PlaceDetailViewModel @Inject constructor(
         private val schedulerProvider: SchedulerProvider
 ) : BaseViewModel() {
 
-    val place = ObservableField<ParkingPlace>()
-    val destination = MutableLiveData<Result<LatLng>>()
+    val place = MutableLiveData<Result<ParkingPlace>>()
+    val destination = MutableLiveData<LatLng>()
     val locations = MutableLiveData<Result<Pair<LatLng, LatLng>>>()
     val route = MutableLiveData<Result<List<LatLng>>>()
 
     fun getParkingPlace(id: String) {
         getPlace.getPlace(id)
                 .firstOrError()
-                .observeOn(schedulerProvider.ui())
-                .toResult()
-                .subscribe {
-                    when (it) {
-                        is Result.Success -> {
-                            it.data?.apply {
-                                if (place.get() == this) return@apply
-                                place.set(this)
-                                val twdX = tw97x?.toDouble() ?: 0.0
-                                val twdY = tw97y?.toDouble() ?: 0.0
-                                val latLng = transformer.twd97ToWgs84(twdX, twdY)
-                                destination.postValue(Result.success(latLng))
-                            }
-                        }
-                        is Result.Failure -> destination.postValue(Result.failure(it.errorMessage, it.e))
-                        is Result.InProgress -> destination.postValue(Result.inProgress())
+                .doOnSuccess {
+                    it?.apply {
+                        val twdX = tw97x?.toDouble() ?: 0.0
+                        val twdY = tw97y?.toDouble() ?: 0.0
+                        val latLng = transformer.twd97ToWgs84(twdX, twdY)
+                        if (destination.value == latLng) return@apply
+                        destination.postValue(latLng)
                     }
                 }
+                .observeOn(schedulerProvider.ui())
+                .toResult()
+                .subscribe { place.postValue(it) }
                 .addTo(disposables)
     }
 
@@ -70,22 +63,11 @@ class PlaceDetailViewModel @Inject constructor(
     private fun getCurrentLocation() {
         getLocation.getCurrentLocation()
                 .firstOrError()
+                .map { Pair(it, destination.value!!) }
+                .doOnSuccess { calculateRoute(it.first, it.second) }
                 .observeOn(schedulerProvider.ui())
                 .toResult()
-                .subscribe {
-                    when (it) {
-                        is Result.Success -> {
-                            val origin = it.data
-                            val v = destination.value
-                            if (v is Result.Success) {
-                                locations.postValue(Result.success(Pair(origin, v.data)))
-                                calculateRoute(origin, v.data)
-                            }
-                        }
-                        is Result.Failure -> locations.postValue(Result.failure(it.errorMessage, it.e))
-                        is Result.InProgress -> locations.postValue(Result.inProgress())
-                    }
-                }
+                .subscribe { locations.postValue(it) }
                 .addTo(disposables)
     }
 
@@ -94,13 +76,7 @@ class PlaceDetailViewModel @Inject constructor(
                 .firstOrError()
                 .observeOn(schedulerProvider.ui())
                 .toResult()
-                .subscribe {
-                    when (it) {
-                        is Result.Success -> route.postValue(Result.success(it.data))
-                        is Result.Failure -> route.postValue(Result.failure(it.errorMessage, it.e))
-                        is Result.InProgress -> route.postValue(Result.inProgress())
-                    }
-                }
+                .subscribe { route.postValue(it) }
                 .addTo(disposables)
     }
 }

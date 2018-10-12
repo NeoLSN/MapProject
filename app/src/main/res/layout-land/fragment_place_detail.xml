@@ -4,8 +4,8 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.android.mapproject.presentation.placedetail.PlaceDetailViewModel"/>
+            name="place"
+            type="com.android.mapproject.domain.model.ParkingPlace"/>
     </data>
 
     <LinearLayout
@@ -41,7 +41,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:text="@{viewModel.place.name}"/>
+                    android:text="@{place.name}"/>
             </RelativeLayout>
 
             <View
@@ -71,7 +71,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:text="@{viewModel.place.area}"/>
+                    android:text="@{place.area}"/>
             </RelativeLayout>
 
             <View
@@ -101,7 +101,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:text="@{viewModel.place.serviceTime}"/>
+                    android:text="@{place.serviceTime}"/>
             </RelativeLayout>
 
             <View
@@ -135,7 +135,7 @@
                     android:layout_toLeftOf="@+id/planning_path"
                     android:maxLines="3"
                     android:textAlignment="viewEnd"
-                    android:text="@{viewModel.place.address}"/>
+                    android:text="@{place.address}"/>
 
                 <Button
                     android:id="@+id/planning_path"
