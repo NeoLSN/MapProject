@@ -11,11 +11,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.navArgs
 import com.android.mapproject.databinding.FragmentPlaceDetailBinding
 import com.android.mapproject.di.androidx.AndroidXInjection
 import com.android.mapproject.presentation.ViewModelFactory
 import com.android.mapproject.presentation.common.Result
-import com.android.mapproject.presentation.placedetail.PlaceDetailFragmentArgs.fromBundle
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.*
@@ -38,6 +38,7 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
     private lateinit var viewDataBinding: FragmentPlaceDetailBinding
     private lateinit var viewModel: PlaceDetailViewModel
     private lateinit var mapView: MapView
+    private val args: PlaceDetailFragmentArgs by navArgs()
 
     override fun onAttach(context: Context?) {
         AndroidXInjection.inject(this)
@@ -63,8 +64,7 @@ class PlaceDetailFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel.getParkingPlace(fromBundle(arguments).placeId)
+        viewModel.getParkingPlace(args.placeId)
 
         checkPlayServicesAvailable()
     }
